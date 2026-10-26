@@ -1,0 +1,41 @@
+# Base44 sandbox dev environment for the Aurelia landing page.
+#
+# Runs the app straight from the cloned source with Vite's dev server (bound to
+# 0.0.0.0:3000), so edits are reflected without rebuilding an image. This file is
+# for local/sandbox development only — it is not a production deployment config.
+services:
+  web:
+    image: node:22
+    working_dir: /app
+    # Dependencies are installed on startup, after the bind mount is available,
+    # from the committed lockfile.
+    command: ["sh", "-ec", "npm ci --no-audit --no-fund && exec npm run dev"]
+    restart: on-failure
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      # Keep container-installed dependencies out of the bind-mounted source.
+      - /app/node_modules
+    environment:
+      # Passed through from the sandbox; gates the preview-only Vite overrides
+      # (allowed hosts + file-watch polling) in vite.config.js.
+      - BASE44_PREVIEW_MODE
+      - BASE44_PUBLIC_HOST_SUFFIX
+      - BASE44_SANDBOX_HOST_DOMAIN
+      # Bind mounts don't reliably emit inotify events inside the sandbox.
+      - CHOKIDAR_USEPOLLING=true
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 90s
+    labels:
+      base44.project: "Aurelia landing page"
+      base44.kind: "web"
+      base44.port: "3000"
