@@ -12,7 +12,7 @@ gsap.registerPlugin(ScrollTrigger)
  * Frame sequence config                                                *
  * ------------------------------------------------------------------ */
 const FRAME_COUNT = 80
-const FRAME_BASE = '/hero-frames/frame_'
+const FRAME_BASE = `${import.meta.env.BASE_URL}hero-frames/frame_`
 
 function padFrame(i) {
   return FRAME_BASE + String(i).padStart(3, '0') + '.jpg'

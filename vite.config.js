@@ -24,7 +24,8 @@ if (previewMode && previewHosts.length) {
   server.watch = { usePolling: true }
 }
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
+  base: process.env.BASE_PATH || (command === 'build' ? '/real-estate-website/' : '/'),
   plugins: [react()],
   server,
-})
+}))
